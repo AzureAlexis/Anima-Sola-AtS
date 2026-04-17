@@ -8,6 +8,7 @@ public class Status
     public int stacks;
     public int maxStacks = 3;    // If the status can have multiple stacks, how many it can have before it reaches max power. If 0, stacks do not increase the power of the status.
     public bool persist = false;  // If the status isn't cured at the end of battle
+    public int duration = -1;    // Duration in turns. If 0, the status lasts until cured.
 
     // Damage over time
     public double damage = 0.0;   // Damage to add or subtract from the inflicted unit at the start of their turn. If between 0 and 1, deals damage as percent of max hp.
@@ -23,7 +24,7 @@ public class Status
     public double stamina = 0.0;
     public double intelligence = 0.0;
     public double agility = 0.0;
-    public double charm = 0.0;
+    public double charisma = 0.0;
 
     // Enemy stats
     public double intimidate = 0.0;  // Susceptibility to being intimidated. Only used for enemies. If between 0 and 1, acts as a multiplier instead.
