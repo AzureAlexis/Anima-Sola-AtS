@@ -1,44 +1,131 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+using Unity.Properties;
 
 public static class TextManager
 {
     static List<Scene> scenes = new List<Scene>();
-    static TextMeshProUGUI textbox;
-    static TextMeshProUGUI namebox;
+
+    static TextMeshProUGUI textboxText;
+    static TextMeshProUGUI textboxName;
+    static RectTransform textboxRect;
+
+    static TextMeshProUGUI choiceboxText;
+    static TextMeshProUGUI choiceboxName;
+    static RectTransform choiceboxRect;
+
+    static RectTransform choiceCursor;
+
     static Scene currentScene;
     static Line currentLine;
+    static Choice currentChoice;
+    static int choiceIndex = 0;
+    static bool choicePreserveTextbox = false;
+
     static int index = 0;
+    static string state = "Inactive";
+    static float debugTimer = 2;
 
     public static void Start()
     {
         BuildScript();
         GetReferences();
-        StartScene("Intro");
+        StartScene("Day_1_1_MeetVivian");
     }
 
     public static void Update()
     {
-        if (currentScene != null) 
+        UpdateAnimation();
+        if (state != "Inactive") 
         {
-            Debug.Log(index);
             UpdateTextbox();
             UpdateLine();
+            UpdateChoice();
         }
+    }
+
+    static void UpdateAnimation()
+    {
+        AnimateTextRect();
+        AnimateTextbox();
+        AnimateChoiceRect();
+        AnimateChoicebox();
+        AnimateChoiceCursor();
+    }
+
+    static void AnimateTextRect()
+    {
+        if ((state == "Line") || (state == "Choice" && choicePreserveTextbox) && textboxRect.sizeDelta.y < 300)
+            textboxRect.sizeDelta = new Vector2(1628, Mathf.Min(textboxRect.sizeDelta.y + 3000 * Time.deltaTime, 300));
+        else if (!((state == "Line") || (state == "Choice" && choicePreserveTextbox)) && textboxRect.sizeDelta.y > 0)
+            textboxRect.sizeDelta = new Vector2(1628, Mathf.Max(textboxRect.sizeDelta.y - 3000 * Time.deltaTime, 0));
+    }
+
+    static void AnimateTextbox()
+    {
+        if (!((state == "Line") || (state == "Choice" && choicePreserveTextbox)) && textboxText.alpha != 0)
+            textboxText.alpha = textboxName.alpha = 0;
+        else if (((state == "Line") || (state == "Choice" && choicePreserveTextbox)) && textboxRect.sizeDelta.y == 300 && textboxText.alpha == 0)
+            textboxText.alpha = textboxName.alpha = 1;
+    }
+
+    static void AnimateChoicebox()
+    {
+        if (state != "Choice" && choiceboxText.alpha != 0)
+            choiceboxText.alpha = choiceboxName.alpha = 0;
+        else if (state == "Choice" && choiceboxRect.sizeDelta.y == 300 && choiceboxText.alpha == 0)
+            choiceboxText.alpha = choiceboxName.alpha = 1;
+    }
+
+    static void AnimateChoiceCursor()
+    {
+        if (state != "Choice")
+            choiceCursor.gameObject.SetActive(false);
+        else
+        {
+            choiceCursor.gameObject.SetActive(true);
+            choiceCursor.anchoredPosition = new Vector2(70, -108 - 60 * choiceIndex);
+        }
+    }
+
+    static void UpdateChoice()
+    {
+        if(state != "Choice")
+            return;
+        if (choiceboxText == null || choiceboxName == null)
+            GetReferences();
+
+        choiceboxText.text = $"    {currentChoice.choice1}\n    {currentChoice.choice2}\n    {currentChoice.choice3}";
+
+        if(Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            choiceIndex = (choiceIndex + 1) % currentChoice.choices;
+        }
+        else if(Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            choiceIndex = (choiceIndex + currentChoice.choices - 1) % currentChoice.choices;
+        }
+    }
+
+    static void AnimateChoiceRect()
+    {
+        if (state == "Choice" && choiceboxRect.sizeDelta.y < 300)
+            choiceboxRect.sizeDelta = new Vector2(814, Mathf.Min(choiceboxRect.sizeDelta.y + 3000 * Time.deltaTime, 300 - (3 - currentChoice.choices) * 60));
+        else if (state != "Choice" && choiceboxRect.sizeDelta.y > 0)
+            choiceboxRect.sizeDelta = new Vector2(814, Mathf.Max(choiceboxRect.sizeDelta.y - 3000 * Time.deltaTime, 0));
     }
 
     public static void UpdateTextbox()
     {
         if (currentScene == null)
             return;
-        if(textbox == null || namebox == null)
+        if(textboxText == null || textboxName == null)
             GetReferences();
 
-        currentLine = currentScene.lines[index];
-
-        textbox.text = currentLine.text;
-        namebox.text = currentLine.speaker;
+        textboxText.text = currentLine.text;
+        textboxName.text = currentLine.speaker;
     }
     public static void UpdateLine()
     {
@@ -50,17 +137,97 @@ public static class TextManager
 
         if (Input.GetKeyDown(KeyCode.Z))
         {
+            if(state == "Choice")
+            {
+                Scene oldScene = currentScene;
+                Debug.Log($"Choice {choiceIndex + 1} selected");
+                switch (choiceIndex)
+                {
+                    case 0:
+                        if (currentChoice.action1 != null)
+                        {
+                            currentChoice.action1?.Invoke();
+                            return;
+                        }
+                        break;
+                    case 1:
+                        if (currentChoice.action2 != null)
+                        {
+                            currentChoice.action2?.Invoke();
+                            return;
+                        }
+                        break;
+                    case 2:
+                        if (currentChoice.action3 != null)
+                        {
+                            currentChoice.action3?.Invoke();
+                            return;
+                        }
+                        break;
+                }
+                if (currentScene != oldScene)
+                    return;
+            }
             if (index == currentScene.lines.Count - 1)
+            {
+                state = "Inactive";
                 EndScene();
+                return;
+            }
+            
+            index++;
+
+            if(currentScene.lines[index] is Choice)
+            {
+                state = "Choice";
+                currentChoice = currentScene.lines[index] as Choice;
+                choiceIndex = 0;
+                choicePreserveTextbox = currentChoice.preserveTextbox;
+            }
             else
-                index++;
+            {
+                state = "Line";
+                currentLine = currentScene.lines[index];
+            }
         }
 
     }
     static void GetReferences()
     {
-        textbox = GameObject.Find("Textbox").GetComponent<TextMeshProUGUI>();
-        namebox = GameObject.Find("Namebox").GetComponent<TextMeshProUGUI>();
+        textboxText = GameObject.Find("TextboxText").GetComponent<TextMeshProUGUI>();
+        textboxName = GameObject.Find("TextboxName").GetComponent<TextMeshProUGUI>();
+        textboxRect = GameObject.Find("Textbox").GetComponent<RectTransform>();
+
+        choiceboxText = GameObject.Find("ChoiceboxText").GetComponent<TextMeshProUGUI>();
+        choiceboxRect = GameObject.Find("Choicebox").GetComponent<RectTransform>();
+        choiceboxName = GameObject.Find("ChoiceboxName").GetComponent<TextMeshProUGUI>();
+
+        choiceCursor = GameObject.Find("ChoiceCursor").GetComponent<RectTransform>();
+    }
+    public static void StartScene(string name)
+    {
+        Interpreter.Enqueue(typeof(TextManager));
+        currentScene = scenes.Find(scene => scene.name == name);
+        index = 0;
+        if (currentScene.lines[index] is Choice)
+        {
+            state = "Choice";
+            currentChoice = currentScene.lines[index] as Choice;
+            choiceIndex = 0;
+            choicePreserveTextbox = currentChoice.preserveTextbox;
+        }
+        else
+        {
+            state = "Line";
+            currentLine = currentScene.lines[index];
+        }
+    }
+
+    public static void EndScene()
+    {
+        Interpreter.Dequeue(typeof(TextManager));
+        currentScene = null;
+        index = 0;
     }
 
     static void BuildScript()
@@ -132,24 +299,46 @@ public static class TextManager
                     new Line() {
                         text = "...sure. That's alright.",
                         speaker = "Kozera"
+                    },
+                    new Choice()
+                    {
+                        choices = 3,
+                        choice1 = "Test choice 1",
+                        choice2 = "Test choice 2",
+                        choice3 = "Test choice 3",
+                        action1 = () => StartScene("AuroraWakeup"),
+                        action2 = () => Debug.Log("Choice 2 selected"),
+                        action3 = () => Debug.Log("Choice 3 selected")
                     }
                 }
+            },
+            new Scene { name = "AuroraWakeup",
+                lines = new List<Line> {
+                    new Choice() {
+                        choices = 2,
+                        choice1 = "Get up",
+                    }
+                }
+            },
+            new Scene { name = "Day_1_1_MeetVivian",
+                lines  = new List<Line>
+                {
+                    new Line()
+                    {
+                        speaker = "System",
+                        text = "You see a person looking across the lake. She looks rather nervous."
+                    },
+                    new Choice()
+                    {
+                        choices = 3,
+                        choice1 = "'Who's there?'",
+                        choice2 = "'Are you alright?'",
+                        choice3 = "Attack",
+                        action3 = () => BattleManager.StartBattle()
+                    }
+                }
+
             }
         };
-    }
-
-    public static void StartScene(string name)
-    {
-        Interpreter.Enqueue(typeof(TextManager));
-        currentScene = scenes.Find(scene => scene.name == name);
-        currentLine = currentScene.lines[0];
-        index = 0;
-    }
-
-    public static void EndScene()
-    {
-        Interpreter.Dequeue(typeof(TextManager));
-        currentScene = null;
-        index = 0;
     }
 }

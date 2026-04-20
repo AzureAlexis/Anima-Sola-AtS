@@ -26,6 +26,7 @@ public class playerMove : MonoBehaviour
 
     void FixedUpdate()
     {
+        if(Interpreter.Busy()) return; // Don't allow movement if the interpreter is busy (e.g., during a dialogue scene)
         rb.linearVelocity = movement * moveSpeed;
     }
 }

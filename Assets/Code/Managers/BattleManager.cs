@@ -10,7 +10,7 @@ public static class BattleManager
     {
 
     }
-    static void StartBattle()
+    public static void StartBattle()
     {
         inBattle = true;
         actionPoints = 0;

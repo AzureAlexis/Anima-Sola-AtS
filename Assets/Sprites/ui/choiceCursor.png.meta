@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a37acf7d07340164fb98070d85eea797
+guid: d17b672f1b944284798df1b67769a7bd
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8673756312040429146
-    second: textbox_0
+      213: -7822689168411272742
+    second: path4_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -47,8 +47,8 @@ TextureImporter:
   lightmap: 0
   compressionQuality: 50
   spriteMode: 2
-  spriteExtrude: 0
-  spriteMeshType: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: textbox_0
+      name: path4_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1628
-        height: 328
+        width: 37
+        height: 43
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 405, y: 51, z: 52, w: 87}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6a92788f690a0a780800000000000000
-      internalID: -8673756312040429146
+      spriteID: ad9dc80d5a9307390800000000000000
+      internalID: -7822689168411272742
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 1a1d705d9a6733a4bb793cb68b795417
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -133,11 +133,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":1628.0,"y":328.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      textbox_0: -8673756312040429146
+      path4_0: -7822689168411272742
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
