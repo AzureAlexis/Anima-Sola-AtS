@@ -12,6 +12,7 @@ public class Interpreter : MonoBehaviour
         EquipmentManager.Start();
         PartyManager.Start();
         TextManager.Start();
+        BattleManager.Start();
     }
 
     void Update()
@@ -31,6 +32,7 @@ public class Interpreter : MonoBehaviour
             busy = false;
     }
     public static bool Busy() {return busy;}
+    public static bool Ready() {return !busy;}
     public static bool Ready(System.Type Obj)
     {
         return queue[0] == Obj;

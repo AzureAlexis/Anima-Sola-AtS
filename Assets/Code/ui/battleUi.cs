@@ -1,94 +1,115 @@
-using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
-public class battleUi : MonoBehaviour
+public class BattleUi : MonoBehaviour
 {
-    public int layer = 0;   // Which menu layer the player is on. 0 is top menu, 1 is skill select, etc.
-    List<string> topCommands = new List<string> {"Fight", "Tech", "Talk", "Item", "Move", "Item", "Tactic"};
-    List<Skill> subCommands = new List<Skill> {};
-    Character selectedCharacter;  // The character whose commands are being displayed.
-    int index = 0;  // Index of the currently selected command.
+    public static BattleUi Instance;
+    bool active = false;
 
+    public int selectedTopCommand;
+
+    List<Image> topMenuOptions;
+    RectTransform skillMenuRect;
+    List<Image> skillMenuOptions;
+    List<TextMeshProUGUI> skillMenuText;
+
+    Color brightRed = new Color(1f, 0.4f, 0.4f);
+    Color darkRed = new Color(0.6f, 0.2f, 0.2f);
+    void Start()
+    {
+        Instance = this;
+        Util.SetChildrenActive(transform, false);
+        StartBattle();
+    }
     void Update()
     {
-        UpdateIndex();
-        UpdateLayer();
-    }
-
-    void UpdateIndex()
-    {
-        int maxIndex = 0;
-        switch (layer)
+        if (active)
         {
-            case 0:
-                maxIndex = PartyManager.party.Count - 1;
-                break;
-            case 1:
-                maxIndex = topCommands.Count - 1;
-                break;
-            case 2:
-                maxIndex = subCommands.Count - 1;
-                break;
+            UpdateAnimation();
         }
-
-        if (Input.GetKeyDown(KeyCode.DownArrow))
-            index++;
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
-            index--;
-
-        if (index > maxIndex)
-            index = 0;
-        else if (index < 0)
-            index = maxIndex;
     }
 
-    void UpdateLayer()
+    public void StartBattle()
     {
-        if (Input.GetKeyDown(KeyCode.Z))
+        Util.SetChildrenActive(transform, true);
+        active = true;
+    }
+
+    public void EndBattle()
+    {
+        Util.SetChildrenActive(transform, false);
+        active = false;
+    }
+
+    void UpdateAnimation()
+    {
+        AnimateTopMenu();
+        AnimateSkillMenu();
+    }
+
+    void AnimateSkillMenu()
+    {
+        if (BattleManager.State() == "SkillSelect")
         {
-            switch (layer)
+            skillMenuRect.anchoredPosition = new Vector2(535, -172 - (66 * selectedTopCommand));
+            for (int i = 0; i < 4; i++)
             {
-                case 0:
-                    BuildSkillList();
-                    break;
-                case 1:
-                    // Execute the selected skill.
-                    break;
+                skillMenuOptions[i].gameObject.SetActive(true);
+
+                if (i != BattleManager.Index() && skillMenuOptions[i].color != brightRed)
+                    skillMenuOptions[i].color = brightRed;
+                else if (i == BattleManager.Index() && skillMenuOptions[i].color != Color.white)
+                    skillMenuOptions[i].color = Color.white;
+
+                try { 
+                    skillMenuText[i * 2].text = BattleManager.subCommands[i].name;
+                    skillMenuText[i * 2 + 1].text = "AP " + BattleManager.subCommands[i].cost.ToString();
+                }
+                catch (System.ArgumentOutOfRangeException)
+                {
+                    skillMenuText[i * 2].text = "-";
+                    skillMenuText[i * 2 + 1].text = "";
+                    skillMenuOptions[i].color = darkRed;
+                }
+
+
             }
         }
-        else if (Input.GetKeyDown(KeyCode.X))
+        else
         {
-            if (layer > 0)
-                layer--;
+            for (int i = 0; i < skillMenuOptions.Count; i++)
+                skillMenuOptions[i].gameObject.SetActive(false);
         }
     }
 
-    void BuildSkillList()
+
+    void AnimateTopMenu()
     {
-        subCommands.Clear();
+        Color inactiveColor = brightRed;
+        if(BattleManager.State() == "TopMenu")
+            selectedTopCommand = BattleManager.Index();
+        else
+            inactiveColor = darkRed;
 
-        switch (index)
+
+        if (topMenuOptions == null || topMenuOptions.Contains(null))
+            GetRefrences();
+        for (int i = 0; i < topMenuOptions.Count; i++)
         {
-            case 0:
-                subCommands.AddRange(selectedCharacter.WeaponSkills());
-                break;
-            case 1:
-                subCommands.AddRange(selectedCharacter.Skills());
-                break;
-            case 2:
-                subCommands.AddRange(SkillManager.SocialSkills());
-                break;
-            case 3:
-                subCommands.AddRange(selectedCharacter.Moves());
-                break;
-            case 4:
-                subCommands.AddRange(selectedCharacter.Items());
-                break;
-            case 5:
-                subCommands.AddRange(SkillManager.Tactics());
-                break;
+            if (i != selectedTopCommand && topMenuOptions[i].color != inactiveColor)
+                topMenuOptions[i].color = inactiveColor;
+            else if(i == selectedTopCommand && topMenuOptions[i].color != Color.white)
+                topMenuOptions[i].color = Color.white;
         }
     }
 
-    
+    void GetRefrences()
+    {
+        topMenuOptions = new List<Image>(GameObject.Find("TopMenu").GetComponentsInChildren<Image>());
+        skillMenuRect = GameObject.Find("SkillMenu").GetComponent<RectTransform>();
+        skillMenuOptions = new List<Image>(GameObject.Find("SkillMenu").GetComponentsInChildren<Image>());
+        skillMenuText = new List<TextMeshProUGUI>(GameObject.Find("SkillMenu").GetComponentsInChildren<TextMeshProUGUI>());
+    }
 }

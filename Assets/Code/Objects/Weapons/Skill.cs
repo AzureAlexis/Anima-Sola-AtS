@@ -5,6 +5,7 @@ public class Skill
     // Basic info
     public string name;                 // The name of the skill to show in the UI
     public string desc;                 // A description of the skill to show in the UI
+    public string debugDesc;            // A more literal description for skills with vague descriptions.
     public int type = 0;                // What type of skill this is. 0 for attacks, 1 for heals, 2 for moves.
     public int target;                  // The type of units this skill can target. 0 for enemies, 1 for allies, 2 for self.
     public int cost = 0;                // How many action points this skill costs to use.
@@ -26,6 +27,12 @@ public class Skill
     public string cureStatus;           // If not null, the status effect this skill cures on hit.
     public double cureAcc = 1.0;           // The chance for this skill to cure its status effect.
     public string cureAccStat;       // If not null, multiply the cureAcc by this stat.
+
+    // Misc info
+    public int recoil;              // How much damage the user takes when using this skill. Only for otherworldy skills.
+
+    public System.Func<bool> specialCondition;  // If condition is true, triggers the special effect of the skill.
+    public System.Action specialEffect;
 
     // Move info
     public int distance = 0;            // If this skill is a move, how many tiles it can move the user. If -1, infinite tiles.

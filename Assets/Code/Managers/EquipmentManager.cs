@@ -26,7 +26,7 @@ public static class EquipmentManager
             new Weapon(){name = "Knife",
                 desc = "A simple pocket knife. You had this since the beginning, and it's getting a little dull. Used for quick, low power attacks.",
                 power = 3,
-                skills = SkillManager.GetSkillsetByNames(new string[] { "Cut", "Stab", "Backstab", "Critical Slash" })
+                skills = SkillManager.GetSkillsetByNames(new string[] { "Cut", "Stab", "Hack Away", "Critical Slash" })
             },
             new Weapon(){name = "Scalpel",
                 desc = "A surgical scalpel. Deals quick, precise hits that can open wounds and inflict bleeding.",
@@ -148,8 +148,12 @@ public static class EquipmentManager
     // Getters for database
     public static Weapon GetWeapon(string name)
     {
-        foreach(Weapon w in weapons)
-            if(w.name == name) return w;
+        foreach (Weapon w in weapons)
+            if (w.name == name)
+            {
+                Debug.Log("Found weapon: " + name);
+                return w;
+            }
         return null;
     }
     public static Armor GetArmor(string name)

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class Unit : MonoBehaviour
+public class Unit
 {
+    string name;
+    public GameObject gameObject;
     public int hp;
     public int mhp;
     public int power;
@@ -18,7 +20,7 @@ public class Unit : MonoBehaviour
     public List<Status> statusEffects = new List<Status>();
     public List<(Weapon, int)> weaponProficiencies = new List<(Weapon, int)>();
 
-    void Start()
+    public void Start()
     {
         
     }
@@ -127,6 +129,10 @@ public class Unit : MonoBehaviour
     }
     
     // Stat getter Functions
+    public string Name()
+    {
+        return name;
+    }
     public int TotalPower()
     {
         int totalPower = power;

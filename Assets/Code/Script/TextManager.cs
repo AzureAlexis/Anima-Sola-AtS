@@ -32,7 +32,6 @@ public static class TextManager
     {
         BuildScript();
         GetReferences();
-        StartScene("Day_1_1_MeetVivian");
     }
 
     public static void Update()

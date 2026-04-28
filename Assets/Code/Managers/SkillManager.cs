@@ -14,20 +14,20 @@ public static class SkillManager
         skills = new List<Skill>();
 
         // Basic skills
-        skills.Add(new Skill(){name = "Cut",
+        skills.Add(new Skill() { name = "Cut",
             desc = "A quick cut that deals light slashing damage to one adjacent target. Not powerful, but very fast",
             damageType = "Slashing",
             power = 0.3,
             cost = 3
         });
-        skills.Add(new Skill(){name = "Bash",
+        skills.Add(new Skill() { name = "Bash",
             desc = "Slam an enemy with your weapon to deal light blunt damage.",
             damageType = "Blunt",
             power = 0.7,
             accuracy = 0.9,
             cost = 5
         });
-        skills.Add(new Skill(){name = "Crush",
+        skills.Add(new Skill() { name = "Crush",
             desc = "A powerful strike that deals medium blunt damage to one adjacent target. Has a small chance to stun the target.",
             damageType = "Blunt",
             power = 1.2,
@@ -38,13 +38,13 @@ public static class SkillManager
         });
 
         // Knife skills
-        skills.Add(new Skill(){name = "Stab",
+        skills.Add(new Skill() { name = "Stab",
             desc = "Deals light piercing damage to one adjacent target. Has a chance to hit the heart of humanoid enemies and deal heavy damage instead.",
             damageType = "Piercing",
             power = 0.6,
             cost = 4
         });
-        skills.Add(new Skill(){name = "Hack Away",
+        skills.Add(new Skill() { name = "Hack Away",
             desc = "Slash rapidly, dealing multiple hits with moderate accuracy in a small area in front of you.",
             damageType = "Slashing",
             power = 0.3,
@@ -53,7 +53,7 @@ public static class SkillManager
             maxHits = 3,
             cost = 6
         });
-        skills.Add(new Skill(){name = "Critical Slash",
+        skills.Add(new Skill() { name = "Critical Slash",
             desc = "A powerful, arcing attack that deals medium slashing damage to one adjacent target. Has a chance to deal heavy damage instead.",
             damageType = "Slashing",
             power = 0.6,
@@ -61,32 +61,68 @@ public static class SkillManager
         });
 
         // Scalpel skills
-        skills.Add(new Skill(){name = "Scalpel Ballet",
+        skills.Add(new Skill() { name = "Scalpel Ballet",
             desc = "A flurry of precise strikes. Deals tiny slashing damage 4-6 times to one adjacent target, each hit having a tiny chance to inflict bleeding.",
             damageType = "Slashing",
-            power = 0.3,
+            power = 0.15,
             accuracy = 1.0,
-            inflictAcc = 0.1,
+            inflictAcc = 0.15,
             inflictStatus = "Bleed",
             cost = 8
         });
-        skills.Add(new Skill(){name = "Inscision",
-            desc = "Make a precise cut to open the enemy's wounds. Deals light slashing damage to one adjacent target, but has a chance to deal moderate damage and inflict bleeding instead.",
-            damageType = "Slashing",
+        skills.Add(new Skill() { name = "Inscision",
+            desc = "Make a precise cut to open the enemy's wounds. Deals light piercing damage to one adjacent target with a high chance to inflict bleeding.",
+            damageType = "Piercing",
             accuracy = 1.0,
             power = 0.4,
             inflictAcc = 0.5,
             inflictStatus = "Bleed",
             cost = 4
         });
-        skills.Add(new Skill(){name = "Lacerate",
-            desc = "Deals tiny slashing damage to one adjacent target with a small chance to inflict bleeding. If the target is already bleeding, deals moderate damage instead.",
+        skills.Add(new Skill() { name = "Lacerate",
+            desc = "Deals tiny slashing damage to one adjacent target with a small chance to inflict bleeding. If the target is already bleeding, scores an additional hit.",
             damageType = "Slashing",
-            power = 0.2,
+            power = 0.25,
             accuracy = 1.0,
             inflictAcc = 0.2,
             inflictStatus = "Bleed",
+            specialCondition = () => { return BattleManager.currentEnemy.StatusStacks("Bleed") > 0; },
+            specialEffect = () => { BattleManager.currentEnemy.TakeDamage((int)(BattleManager.currentCharacter.TotalPower() * 0.2 * Random.Range(0.8f, 1.2f)), "Slashing"); },
             cost = 3
+        });
+
+        // Dagger/Otherworldly skills (Locked to Amber)
+        skills.Add(new Skill() { name = "Weak Stab",
+            desc = "A desperate strike that deals light piercing damage to one adjacent target. Not very powerful or accurate.",
+            damageType = "Piercing",
+            power = 0.3,
+            accuracy = 0.7,
+            cost = 3
+        });
+        skills.Add(new Skill() { name = "Void Ice Sign 'Collapse'",
+            desc = "Make the very space around an enemy colapse on itself. Deals lethal damage to one target at range and inflicts bleeding.",
+            damageType = "Magic",
+            power = 2.5,
+            recoil = 14,
+            cost = 14,
+            inflictStatus = "Bleed",
+            inflictAcc = 0.8
+        });
+        skills.Add(new Skill() { name = "Void Spirit Sign 'Open Universe'",
+            desc = "Summon slivers of the void to strike many enemies. Deals moderate damage to all enemies in an area.",
+            damageType = "Magic",
+            power = 0.8,
+            cost = 10,
+            recoil = 10
+        });
+        skills.Add(new Skill() { name = "Void Wind Sign 'Distant Convergence'",
+            desc = "Collapse a wide area of space into a single point. Deals heavy damage to all enemies in a line, and has a chance to inflict stun.",
+            damageType = "Magic",
+            power = 1.2,
+            cost = 12,
+            recoil = 12,
+            inflictAcc = 0.3,
+            inflictStatus = "Stun"
         });
 
         // Aurora skills
@@ -119,25 +155,33 @@ public static class SkillManager
 
         // Moves
         skills.Add(new Skill(){name = "Dash",
-            desc = "Quickly move up to 5 tiles. Gives momentum for your next attack this turn.",
+            desc = "Quickly move up to 5 tiles. Grants momentum for your next attack this turn.",
             type = 2,
             distance = 5,
             cost = 4,
             inflictStatus = "Momentum"
         });
         skills.Add(new Skill(){name = "Reposition",
-            desc = "Move to any tile",
+            desc = "Move to any tile.",
             type = 2,
             distance = -1,
             cost = 15
         });
+        skills.Add(new Skill(){name = "Tactical Tweak",
+            desc = "Move 1 tile without provoking opportunity attacks. Grants slight momentum.",
+            type = 2,
+            distance = 1,
+            cost = 2,
+        });
 
-       
 
-        // Tactics
-        skills.Add(new Skill(){name = "Guard",
+
+            // Tactics
+            skills.Add(new Skill(){name = "Guard",
             desc = "Prepare yourself for oncoming attacks, reducing damage taken until your next turn. Cannot be used if this unit attacked this turn, and this unit cannot attack after guarding.",
-            cost = 4
+            cost = 4,
+            target = 2,
+            inflictStatus = "Guard"
         });
         skills.Add(new Skill(){name = "Equip",
             desc = "Switch any amount of equipment.",
@@ -149,7 +193,19 @@ public static class SkillManager
             target = 2,
             cost = 0,
             special = "Run"
-            // Implement running away later
+        });
+
+        // Special skills, only used in story battles
+        skills.Add(new Skill()
+        {
+            name = "Rush",
+            desc = "Attack many times.",
+            debugDesc = "Effectively ends the fight, since this deals far more damage than any enemy can take. Only used in some story battles.",
+            damageType = "Untyped",
+            cost = 25,
+            minHits = 50,
+            maxHits = 50,
+            power = 0.5
         });
     }
 
